@@ -3,6 +3,7 @@ import math
 import copy
 import numpy as np
 import pathFinder
+import time
 
 class Node:
 
@@ -12,7 +13,6 @@ class Node:
         self.step = step
         self.parent = parent
         self.route = route
-
 
 
 class InterruptionFinder(object):
@@ -139,10 +139,10 @@ class InterruptionFinder(object):
     '''
      route = list containing the planned route for each agent 
     '''
-    def search_for_interrupt_plan(self, grid, k, route):
+    def search_for_interrupt_plan(self, grid, k, route, timeout):
         self.k = k
         self.grid = grid
-
+        start_time = time.time()
         total_expanded_nodes = 0
         actions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1), (0, 0)]
         # actions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -168,6 +168,10 @@ class InterruptionFinder(object):
         goals = list()
         best_goal_value = 0
         while (len(open) > 0):
+            # Check for timeout
+            if (time.time() - start_time) > timeout:
+                return (0, route, total_expanded_nodes, 1)
+
             node = heapq.heappop(open)[1]
             # count total expanded nodes
             total_expanded_nodes = total_expanded_nodes + 1
@@ -267,5 +271,4 @@ class InterruptionFinder(object):
             parent = parent.parent
 
         # solution = list(reversed(solution))
-
-        return (solution, route, total_expanded_nodes)
+        return(solution, route, total_expanded_nodes, 0)
